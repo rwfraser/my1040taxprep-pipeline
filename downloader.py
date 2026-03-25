@@ -200,12 +200,38 @@ class PDFDownloader:
 
     def _load_manifest(self) -> list[str]:
         path = self.config.URL_MANIFEST_FILE
+
         if not path.exists():
-            log.error(f"Manifest not found: {path}")
+            log.error(
+                f"Manifest not found: {path}  "
+                f"Run '--phase crawl' first to generate it."
+            )
             return []
-        with open(path, encoding="utf-8") as f:
-            data = json.load(f)
-        return data.get("urls", [])
+
+        try:
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+        except json.JSONDecodeError as exc:
+            log.error(
+                f"Manifest is not valid JSON: {path}\n"
+                f"  Error at line {exc.lineno}, col {exc.colno}: {exc.msg}\n"
+                f"  Common cause: trailing comma after the last URL entry."
+            )
+            return []
+        except OSError as exc:
+            log.error(f"Could not read manifest file '{path}': {exc}")
+            return []
+
+        urls = data.get("urls", [])
+        if not urls:
+            log.error(
+                f"Manifest parsed but contains no URLs. "
+                f"Expected key 'urls'. Keys present: {list(data.keys())}"
+            )
+            return []
+
+        log.info(f"Manifest loaded: {len(urls)} URLs from {path.name}")
+        return urls
 
     def _load_state(self) -> dict:
         path = self.config.DOWNLOAD_STATE_FILE
