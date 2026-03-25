@@ -77,6 +77,36 @@ class TestIsRelevantPdfPriorYear:
         url = "https://www.irs.gov/pub/irs-prior/fw9--2021.pdf"
         assert crawler._is_relevant_pdf(url) is False
 
+    # ------------------------------------------------------------------
+    # Regression tests for the case-ordering bug:
+    # Prior-year forms with known prefixes but wrong year must be REJECTED.
+    # These tests would FAIL against the original code where the prefix
+    # check (Case 1) ran before the prior-year gate (Case 2).
+    # ------------------------------------------------------------------
+
+    def test_prior_year_f1040_wrong_year_rejected(self, crawler):
+        # f1040--2022.pdf has prefix 'f1040' but is NOT a 2023 form.
+        url = "https://www.irs.gov/pub/irs-prior/f1040--2022.pdf"
+        assert crawler._is_relevant_pdf(url) is False
+
+    def test_prior_year_f1040_2021_rejected(self, crawler):
+        url = "https://www.irs.gov/pub/irs-prior/f1040--2021.pdf"
+        assert crawler._is_relevant_pdf(url) is False
+
+    def test_prior_year_fw2_wrong_year_rejected(self, crawler):
+        # fw2 is in FORM_PREFIXES but the archive copy from 2020 is not wanted
+        url = "https://www.irs.gov/pub/irs-prior/fw2--2020.pdf"
+        assert crawler._is_relevant_pdf(url) is False
+
+    def test_prior_year_schedule_a_wrong_year_rejected(self, crawler):
+        url = "https://www.irs.gov/pub/irs-prior/f1040sa--2019.pdf"
+        assert crawler._is_relevant_pdf(url) is False
+
+    def test_prior_year_correct_year_accepted(self, crawler):
+        # Sanity check: 2023 form in prior-year archive must still be accepted
+        url = "https://www.irs.gov/pub/irs-prior/fw2--2023.pdf"
+        assert crawler._is_relevant_pdf(url) is True
+
 
 # ---------------------------------------------------------------------------
 #  _is_relevant_pdf – general year-token fallback (branch 3)

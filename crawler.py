@@ -152,17 +152,22 @@ class IRSCrawler:
         """
         Return True if the PDF URL is relevant to 2023 Form 1040 preparation.
 
-        Three acceptance criteria are checked in order:
+        Three acceptance criteria are checked in order.  ORDER IS CRITICAL:
+        the prior-year directory gate (Case 1) must run before the prefix
+        check (Case 2), otherwise forms from 2019-2022 in /pub/irs-prior/
+        pass through because their filenames share the same prefix as 2023
+        forms (e.g. f1040--2022.pdf starts with "f1040").
 
-        Case 1 — Known form prefix (highest confidence):
-            The filename starts with an entry in FORM_PREFIXES (e.g. "f1040",
-            "fw2", "i1040", "p17").  Catches current-year files in /pub/irs-pdf/
-            which carry no year in the filename (e.g. f1040.pdf, fw2.pdf).
+        Case 1 — Prior-year archive gate (most restrictive):
+            Files under /pub/irs-prior/ MUST contain a year token from
+            YEAR_TOKENS_IN_FILENAME ("2023", "ty23", "23").  A matching
+            prefix alone is NOT sufficient — f1040--2022.pdf would otherwise
+            be accepted. This gate is evaluated first for all /irs-prior/ URLs.
 
-        Case 2 — Prior-year directory + year token:
-            Files under /pub/irs-prior/ are only downloaded when the filename
-            contains a year token from YEAR_TOKENS_IN_FILENAME.  This avoids
-            pulling every historical year from the archive.
+        Case 2 — Known form prefix (for non-archive paths):
+            The filename starts with an entry in FORM_PREFIXES.  Used for
+            /pub/irs-pdf/ files that carry no year in their name because they
+            are always the current-year version (e.g. f1040.pdf, fw2.pdf).
 
         Case 3 — Year-token fallback (broadest net):
             Any IRS PDF whose filename contains a year token ("2023", "ty23",
@@ -172,14 +177,16 @@ class IRSCrawler:
         filename = Path(urlparse(url).path).name.lower()
         path = urlparse(url).path.lower()
 
-        # Case 1: filename starts with a recognised IRS form prefix
+        # Case 1: prior-year archive — year token is REQUIRED, prefix alone
+        # is not enough.  This must run before Case 2 to block multi-year
+        # forms such as f1040--2022.pdf, f1040--2021.pdf, etc.
+        if "/irs-prior/" in path:
+            return any(tok in filename for tok in self.config.YEAR_TOKENS_IN_FILENAME)
+
+        # Case 2: non-archive paths — accept by known form prefix
         for prefix in self.config.FORM_PREFIXES:
             if filename.startswith(prefix):
                 return True
-
-        # Case 2: prior-year archive — only accept files that carry a year token
-        if "/irs-prior/" in path:
-            return any(tok in filename for tok in self.config.YEAR_TOKENS_IN_FILENAME)
 
         # Case 3: year token anywhere in the filename (fallback)
         if any(tok in filename for tok in self.config.YEAR_TOKENS_IN_FILENAME):
