@@ -1,0 +1,25 @@
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+# Exclude non-Python trees and generated directories
+exclude = ["nextjs-app", "venv", "My1040TaxPrepvenv", ".git", "__pycache__", ".mypy_cache", ".ruff_cache"]
+
+[tool.ruff.lint]
+# E/W = pycodestyle  F = pyflakes  I = isort  UP = pyupgrade
+select = ["E", "F", "W", "I", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# config.py contains a long API-key line whose length is inherent, not a style issue.
+"config.py" = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+ignore_missing_imports = true
+# Exclude non-Python trees and test helpers that don't need strict checking
+exclude = ["nextjs-app", "venv", "My1040TaxPrepvenv"]
+
+[[tool.mypy.overrides]]
+# pypdf ships no type stubs and has no types-pypdf package on PyPI.
+module = "pypdf"
+ignore_missing_imports = true

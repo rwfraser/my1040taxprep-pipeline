@@ -1,0 +1,34 @@
+# =============================================================
+#  my1040taxprep  –  Python pipeline .gitignore
+# =============================================================
+
+# ── Virtual environment ──────────────────────────────────────
+# Always activate My1040TaxPrepvenv before running Python scripts.
+My1040TaxPrepvenv/
+venv/
+env/
+ENV/
+
+# ── Pipeline output (large / regeneratable) ──────────────────
+pdfs/           # downloaded IRS PDFs (can be many GB)
+extracted/      # per-PDF extracted text JSON files
+schemas/        # LLM analysis output (master_schema, etc.)
+db_schemas/     # per-form database schema JSON files
+crawler/        # crawler working directory
+
+# ── Runtime state and logs ────────────────────────────────────
+state/          # resume-state JSON files (crawl, download, etc.)
+logs/           # rotating log files
+
+# ── Python bytecode / caches ─────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Nested git repository ─────────────────────────────────────
+# nextjs-app has its own repo (rwfraser/my1040taxprep) — excluded here.
+nextjs-app/

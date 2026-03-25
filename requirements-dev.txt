@@ -1,0 +1,12 @@
+# Development dependencies – not required for running the pipeline
+# Install with: pip install -r requirements-dev.txt
+
+# Testing
+pytest>=8.0
+
+# Linting
+ruff>=0.15.0
+
+# Type checking
+mypy>=1.0
+types-requests
