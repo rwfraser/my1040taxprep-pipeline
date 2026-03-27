@@ -29,6 +29,11 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
+# ── API key files ─────────────────────────────────────────────
+# Never commit files containing secrets.
+config.anthropic key.txt
+*.key.txt
+
 # ── Nested git repository ─────────────────────────────────────
 # nextjs-app has its own repo (rwfraser/my1040taxprep) — excluded here.
 nextjs-app/

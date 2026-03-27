@@ -119,7 +119,7 @@ class Config:
     # ------------------------------------------------------------------ #
     DOWNLOAD_DELAY_SECS  = 2.0
     DOWNLOAD_JITTER_SECS = 1.0
-    MAX_PDF_SIZE_MB      = 50        # skip suspiciously large files
+    MAX_PDF_SIZE_MB      = 60        # skip suspiciously large files
 
     # ------------------------------------------------------------------ #
     #  EXTRACTOR SETTINGS                                                  #

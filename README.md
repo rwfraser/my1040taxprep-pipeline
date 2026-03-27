@@ -10,6 +10,7 @@ content, and uses Claude to build five structured output artifacts.
 - Python 3.11+
 - An Anthropic API key (for the analyze phase)
 - Internet access to reach www.irs.gov
+- venv virtual environment
 
 ---
 
